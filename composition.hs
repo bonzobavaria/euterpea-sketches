@@ -30,12 +30,19 @@ composition = line $ (zipWith (:=:) stream1 (reverse stream3))
 -- Ch. 3 exersize
 chrom :: Pitch -> Pitch -> Music Pitch
 chrom p1 p2 = let as = map absPitch [p1, p2]
-                  aMin = minimum as
-                  aMax = maximum as
-                  range = [aMin .. aMax]
+                  range = [(minimum as) .. (maximum as)]
                   order = if p1 < p2 then id else reverse
                   process = order . map (note qn) . map pitch
               in line $ process range
+
+
+mkScale :: Pitch -> [Int] -> Music Pitch
+mkScale p ints = let f acc p [] = acc
+                     f acc p (x:xs) = f (p : acc) (trans x p) xs 
+                     process = reverse . map (note qn)
+                 in line $ process $ f [] p ints
+
+
 
 
 main = play $ forever composition
