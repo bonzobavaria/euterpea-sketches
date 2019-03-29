@@ -1,11 +1,14 @@
 -- Don't forget to start qjackctl and connect midi through to fluidsynth!
 import Euterpea
+import Utils
 
+-- Cool stuff from Ch. 4
 t251 :: Music Pitch
 t251 = let dMinor = d 4 qn :=: f 4 qn :=: a 4 qn
            gMinor = g 4 qn :=: bf 4 qn :=: d 4 qn
        in dMinor :+: gMinor
 
+-- Create a whole tone scale
 wts :: Pitch -> [Music Pitch]
 wts p = let f ap = note qn (pitch (absPitch p + ap))
         in map f [0, 2, 4, 6, 8]
@@ -27,7 +30,7 @@ stream3 = map (instrument MusicBox) $ makeNotes pitches3
 --composition = line $ (zipWith (:=:) stream1 stream3) ++ stream2
 composition = line $ (zipWith (:=:) stream1 (reverse stream3))
 
--- Ch. 3 exersize
+-- Ch. 3 exercise
 chrom :: Pitch -> Pitch -> Music Pitch
 chrom p1 p2 = let as = map absPitch [p1, p2]
                   range = [(minimum as) .. (maximum as)]
@@ -35,15 +38,28 @@ chrom p1 p2 = let as = map absPitch [p1, p2]
                   process = order . map (note qn) . map pitch
               in line $ process range
 
+-- this will work if you specify scale as e.g. [0,2,3,5,7,8,10]
+-- mkS p ints = line $ map (note qn) $ zipWith trans ints (repeat p)
+
+-- take 7 $ iterate (trans 1) (C,4)
+-- [(C,4),(Cs,4),(D,4),(Ds,4),(E,4),(F,4),(Fs,4)]
 
 mkScale :: Pitch -> [Int] -> Music Pitch
-mkScale p ints = let f acc p [] = acc
-                     f acc p (x:xs) = f (p : acc) (trans x p) xs 
-                     process = reverse . map (note qn)
-                 in line $ process $ f [] p ints
+mkScale p ints = let pitches = foldl (\acc x -> trans x (head acc) : acc) [p] ints
+                     notify = reverse . map (note qn)
+                 in line $ notify pitches
 
 
+data ScaleName 
+  = Ionian 
+  | Dorian 
+  | Phrygian 
+  | Lydian 
+  | Mixolydian 
+  | Aeolian 
+  | Lochrian
 
+ionian = [2,2,1,2,2,2,1] :: [Int]
 
 main = play $ forever composition
 --main = play $ forever t251
