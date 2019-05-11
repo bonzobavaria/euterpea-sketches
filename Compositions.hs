@@ -1,3 +1,8 @@
+module Compositions (
+  t251,
+  composition,
+  wholeToneComp,
+) where
 -- Don't forget to start qjackctl and connect midi through to fluidsynth!
 import Euterpea
 import Utils
@@ -10,8 +15,15 @@ t251 = let dMinor = d 4 qn :=: f 4 qn :=: a 4 qn
 
 -- Create a whole tone scale
 wts :: Pitch -> [Music Pitch]
-wts p = let f ap = note qn (pitch (absPitch p + ap))
-        in map f [0, 2, 4, 6, 8]
+wts p = let f ap = note (1/32) (pitch (absPitch p + ap))
+        in map f [0, 2, 4, 6, 8, 10]
+
+-- example
+wholeToneComp = 
+  let scales = take 8 $ iterate (+4) 64 
+      pattern = (concatMap (wts . pitch) scales)
+      comp = pattern ++ (reverse pattern)
+  in line comp
 
 --abs1 = take 12 $ iterate (+5) 32
 abs1 = take 16 $ iterate (\x -> if even x then x + 7 else x - 5) 32
@@ -49,14 +61,13 @@ mkScale p ints = let pitches = foldl (\acc x -> trans x (head acc) : acc) [p] in
                      notify = reverse . map (note qn)
                  in line $ notify pitches
 
-
-data ScaleName 
-  = Ionian 
-  | Dorian 
-  | Phrygian 
-  | Lydian 
-  | Mixolydian 
-  | Aeolian 
+data ScaleName
+  = Ionian
+  | Dorian
+  | Phrygian
+  | Lydian
+  | Mixolydian
+  | Aeolian
   | Lochrian
 
 ionian = [2,2,1,2,2,2,1] :: [Int]

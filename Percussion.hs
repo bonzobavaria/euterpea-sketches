@@ -1,3 +1,7 @@
+module Percussion (
+  groove
+) where
+
 import Euterpea
 
 -- Rock beat
@@ -21,4 +25,3 @@ groove =
      $ (qnr :+: p3 :+: enr))
      :=:
      (forever $ p4)
-  
