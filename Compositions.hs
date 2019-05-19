@@ -2,10 +2,12 @@ module Compositions (
   t251,
   composition,
   wholeToneComp,
+  wholeTonePercComp,
 ) where
 -- Don't forget to start qjackctl and connect midi through to fluidsynth!
 import Euterpea
 import Utils
+import Percussion
 
 -- Cool stuff from Ch. 4
 t251 :: Music Pitch
@@ -23,7 +25,10 @@ wholeToneComp =
   let scales = take 8 $ iterate (+4) 64 
       pattern = (concatMap (wts . pitch) scales)
       comp = pattern ++ (reverse pattern)
-  in line comp
+  in line $ map (instrument RhodesPiano) comp
+
+wholeTonePercComp =
+  (forever wholeToneComp) :=: groove
 
 --abs1 = take 12 $ iterate (+5) 32
 abs1 = take 16 $ iterate (\x -> if even x then x + 7 else x - 5) 32
