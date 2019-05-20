@@ -98,17 +98,30 @@ seq4 =
 seq5 =
   foldy [[0..3],[0,3,5,7],[0,5,8,5]]
 
+gliss n xs = 
+  if length xs < n then xs
+  else take n xs ++ (gliss n (tail xs))
+
 pattern5 = map pitch $ seqToScale seq5 dMinor 5
 rhythm2 = concat $ zipWith replicate [2,4,8,2] [en,sn,(1/32),en]
-melody5 = concatMap (replicate 2) $ mel rhythm2 pattern5
+melody5 = mel rhythm2 pattern5
 clip5 = clip Lead4Chiff melody5
 
 melody4 = line $ map (note sn . pitch . (+40)) seq4
+
+pattern6 = foldy [[0..3],[5,0,3,8]]
+melody6 = mel [qn] $ map pitch $ seqToScale pattern6 dMinor 3
+
+clip6 = clip Koto (map (slice' 2) melody5)
+clip7 = clip Lead8BassLead melody6
 
 mel rhythm seq = zipWith note (cycle rhythm) seq
 
 slice :: Int -> AbsPitch -> [Music Pitch]
 slice x p = (replicate x) $ note (1/(fromIntegral x)) (pitch p) 
+
+slice' :: Int -> Music a -> Music a
+slice' x (Prim (Note d a)) = line $ replicate x $ Prim $ Note (toRational (d/(fromIntegral x))) a
 
 clip inst melody = instrument inst $ line melody
 
