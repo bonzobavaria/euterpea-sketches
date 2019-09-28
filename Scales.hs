@@ -1,5 +1,8 @@
 module Scales where
 
+-- TODO: this module shouldn't need to import Euterpea, since this concept
+-- could be meaningful in any project. Utilities that make scales are probably
+-- part of Utils.hs
 import Euterpea
 
 type Scale = [Int]
