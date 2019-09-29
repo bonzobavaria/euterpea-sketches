@@ -14,14 +14,14 @@ notes = Utils.mkScale Scales.dorian
 pat = map fromIntegral $ Patterns.tertian 4
 p1 = Utils.unravel $ reverse [[0,7],pat,[0..3] ++ [4,3..1],[0,4]]
 thing = Utils.seqToScale notes 5 p1 
-melody = Utils.mel [sn] thing
+m1 = Utils.melody [sn] thing
 
 -- sereneKoto :: Clip
-c1 = Utils.clip Lead1Square melody
+c1 = Utils.clip Lead1Square m1
 
 p2 = [0,4,2,5]
 t2 = Utils.seqToScale notes 4 p2 
-m2 = Utils.mel [(1/1)] t2
+m2 = Utils.melody [(1/1)] t2
 
 c2 = Utils.clip Pad4Choir m2
 
