@@ -5,6 +5,7 @@ import qualified Scales
 import qualified Utils
 import qualified Patterns
 import Euterpea
+import Data.Ratio ((%))
 
 -- This is a C Dorian Scale, though it begs a refactoring to include the pitch class when making a scale
 notes :: [AbsPitch]
@@ -37,6 +38,7 @@ arpInc x = x ++ (reverse x)
 -- Exclusive arp
 arpEx x = init x ++ (init $ reverse x)
 
-q = Utils.cheat Lead1Square notes [sn] 5
+q = Utils.cheat Shamisen notes ([en,en] ++ (replicate 3 $ 1 % 24) ++ [en])  5
 
-seq2 = q $ arpEx Scales.dorian
+clip2 = q $ arpEx Scales.dorian
+clip3 = q $ concatMap (\x -> [0,0] ++ (map (+ (x + 1)) $ Patterns.tertian 3) ++ [0]) Scales.dorian

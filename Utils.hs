@@ -38,7 +38,7 @@ unravel (x:xs) =
 -- and moving up a half-step each time, so the first value is the outermost
 -- shape, i.e. the one that completes only once and has the longest duration.
 
--- TODO: This is actually a Motif
+-- TODO: This is actually a Motif, but that word sucks
 type Sequence = [Int]
 
 -- Ex: scale D major = map (+2) major
