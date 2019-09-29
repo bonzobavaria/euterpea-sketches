@@ -1,6 +1,11 @@
 module Utils (
   addDur,
-  unravel
+  --cheat,
+  clip,
+  mel,
+  unravel,
+  mkScale,
+  seqToScale,
 ) where
 
 import Euterpea
@@ -13,11 +18,13 @@ addDur d ns = line [n d | n <- ns]
 -- of absPitch yet. It needs to be a part of a scale first.
 -- type Pattern = [Int]
 -- unravel :: [[Int]] -> Pattern
+-- TODO: Figure out which fold you should use, foldr, foldl, or foldl'.
 unravel :: [[AbsPitch]] -> [AbsPitch]
 unravel [] = []
 unravel (x:xs) =
   let func = ((<*>) . ((<$>) (+)))
-  in foldr func x xs
+  in foldl func x xs
+--unravel = foldl ((<*>) . ((<$>) (+)))
 
 -- Examples:
 --   unravel [[0,3,7,12],[0..3],[0,12]]
@@ -40,3 +47,23 @@ mkScale scale =
   let everyNote = concat $ take 11 $ iterate (map (+12)) scale
   in takeWhile (<= 127) everyNote
 
+-- FIXME: seq is the thing you'll know last, so it should be the final argument
+-- seqToScale :: Scale Octave **match Euterpea** Sequence -> [AbsPitch]
+seqToScale :: Scale -> Octave -> [Int] -> [AbsPitch]
+seqToScale scale oct = map ((+(12*oct)) . (scale !!))
+
+-- Does `a` have to be `AbsPitch`? What else could it be?
+mel :: [Dur] -> [AbsPitch] -> [Music Pitch]
+mel rhythm seq = zipWith note (cycle rhythm) $ map pitch seq
+
+
+-- Should clip be responsible for using `line` to convert [[Music a] to Music a?
+clip :: InstrumentName -> [Music Pitch] -> Music Pitch 
+clip inst melody = instrument inst $ line melody
+
+-- What's the absolute quickest way to try out a seqeunce?
+-- cheat :: Instrument -> Scale -> [Dur] -> Octave -> Sequence -> Music a
+ --cheat :: InstrumentName -> [AbsPitch] -> [Dur] -> AbsPitch -> [Int] -> Music Pitch 
+--cheat inst scale rhythm octave =
+  ---- FIXME: fix this so fromIntegral isn't needed
+  --(clip inst) . (mel rhythm) . (seqToScale scale octave)

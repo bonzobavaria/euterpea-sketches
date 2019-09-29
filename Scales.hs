@@ -7,11 +7,13 @@ import Euterpea
 
 type Scale = [Int]
 
+-- FIXME: Scales they don't have a type annotation don't match the type `Scale`. Is there a better way to use types to define scales?
+
 minor = aeolian :: Scale
 major = ionian
 chromatic =       [0..11]
 ionian =          [0,2,4,5,7,9,11]
-dorian =          [0,2,3,5,7,9,10]
+dorian =          [0,2,3,5,7,9,10] :: Scale
 phrygian =        [0,1,3,5,7,8,10]
 lydian =          [0,2,4,6,7,9,11]
 mixolydian =      [0,2,4,5,7,9,10]
@@ -21,6 +23,7 @@ harmonicMinor =   [0,2,3,5,7,8,11]
 melodicMinor =    [0,2,3,5,7,9,11]
 hungarianMinor =  [0,2,3,6,7,8,10]
 
+-- TODO: Pitchclasses are from Euterpea, so this shouldn't be here.
 -- Ex: scale D major = map (+2) major
 scale :: PitchClass -> Scale -> Scale
 scale key sc = map (+(absPitch(key,-1))) sc

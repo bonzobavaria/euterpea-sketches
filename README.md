@@ -8,6 +8,31 @@ Test fluidsynth with `noteon 1 60 120`.
 Now open `ghci` and `import Euterpea`.
 Try `play $ note qn (pitch 64)`.
 
+## File Heirarchy
+
+**Chords** and **scales** are just descriptions of numerical patterns and
+shouldn't need to import other files or Euterpea. Utils can make use of that
+info and also import Euterpea. 
+
+## Composition Types
+
+Patterns are organized in layers to make it simple to move from primitive
+numerical patters to complete compositions as follows:
+
++ **Patterns**: Simple numerical patterns describing numerical relationships in
+  a pre-musical form
++ **Sequences**: Patterns applied to a scale, but without rhythm
++ **Melodies**: Sequences with rhythm
++ **Clips**: Melodies that specify an instrument
++ **Scenes**: Arrangements of clips
++ **Compositions**: Arrangements of scenes
+
+This workflow resembles working with something like Ableton Live, but has a
+shortcoming in that it encouraged block and loop-based composition and
+discourages melodic independence and unclearly separated musical sections. 
+
+## Types in Euterpea
+
 ## Pitch vs absPitch
 
 An AbsPitch is a midi note, like `64`. 
@@ -23,8 +48,7 @@ and vice versa.
 
 ## Types
 
-A composition that you can play using the `play` function is of the type `Music
-a`, which is a recusive data type defined as:
+A composition that you can play using the `play` function is of the type `Music a`, which is a recursive data type defined as:
 
 ``` Haskell
 data Music a
