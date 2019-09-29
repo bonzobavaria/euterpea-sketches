@@ -3,9 +3,8 @@ module Main where
 import Euterpea
 import Compositions
 import Percussion
+import Session
 import Utils
 
-main = do
-  --play $ forever Percussion.groove
-  play $ forever Compositions.composition
-
+main =
+ play $ chord $ map forever [beat, linksAdventure]

@@ -1,8 +1,10 @@
 module Percussion (
+  beat,
   groove
 ) where
 
 import Euterpea
+import Data.Ratio ((%))
 
 -- Rock beat
 -- Maybe a clip shouldn't call forever on itself theoretically, but then I'll
@@ -23,3 +25,19 @@ groove =
       ride = times 5 p2 :+: snr
       splash = p4
   in chord $ map forever [bass,snare,ride,splash]
+
+-- Driving bass rhythm
+beat :: Music Pitch
+beat =
+  let r = replicate
+      rhythm = (r 4 sn) ++ 
+               (r 2 ((en/3))) ++
+               (r 1 ((en/3) * 2)) ++
+               (r 2 (en/3)) ++
+               (r 2 sn) ++
+               (r 4 tn) ++
+               (r 5 (en/5)) ++
+               (r 2 sn) 
+  in line $ map (perc LowWoodBlock) rhythm
+  
+

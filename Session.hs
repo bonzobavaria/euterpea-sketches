@@ -9,7 +9,8 @@ import Data.Ratio ((%))
 
 -- This is a C Dorian Scale, though it begs a refactoring to include the pitch class when making a scale
 notes :: [AbsPitch]
-notes = Utils.mkScale Scales.dorian 
+
+notes = Utils.mkScale Scales.lydian
 
 pat = Patterns.tertian 4
 p1 = Utils.unravel $ reverse [[0,7],pat,[0..3] ++ [4,3..1],[0,4]]
@@ -33,12 +34,14 @@ c3 = invert c1
 --octaves = mMap (\(p,o) -> if p == C then (
 
 -- Inclusive arp
+arpInc :: [Int] -> [Int]
 arpInc x = x ++ (reverse x)
 
 -- Exclusive arp
 arpEx x = init x ++ (init $ reverse x)
 
-q = Utils.cheat Shamisen notes ([en,en] ++ (replicate 3 $ 1 % 24) ++ [en])  5
+q = Utils.cheat Lead1Square notes ([sn,sn] ++ (replicate 6 $ 1 % 24) ++ [sn,sn])  5
 
 clip2 = q $ arpEx Scales.dorian
-clip3 = q $ concatMap (\x -> [0,0] ++ (map (+ (x + 1)) $ Patterns.tertian 3) ++ [0]) Scales.dorian
+linksAdventure = q $ concatMap (\x -> [0,0] ++ (map (+ (x + 1)) $ take 6 $ arpEx $ Patterns.tertian 4) ++ [0,0]) $ [0..7]
+
