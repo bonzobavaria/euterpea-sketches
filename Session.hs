@@ -45,3 +45,7 @@ q = Utils.cheat Lead1Square notes ([sn,sn] ++ (replicate 6 $ 1 % 24) ++ [sn,sn])
 clip2 = q $ arpEx Scales.dorian
 linksAdventure = q $ concatMap (\x -> [0,0] ++ (map (+ (x + 1)) $ take 6 $ arpEx $ Patterns.tertian 4) ++ [0,0]) $ [0..7]
 
+q1 = Utils.cheat SynthBass1 notes [qn] 3
+
+m401 = 
+

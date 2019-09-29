@@ -38,7 +38,7 @@ unravel (x:xs) =
 -- and moving up a half-step each time, so the first value is the outermost
 -- shape, i.e. the one that completes only once and has the longest duration.
 
--- TODO: This is actually a Motif, but that word sucks
+-- TODO: This is actually a Motif, I guess. I need to think of a word.
 type Sequence = [Int]
 
 -- Ex: scale D major = map (+2) major
@@ -51,7 +51,7 @@ mkScale scale =
   let everyNote = concat $ take 11 $ iterate (map (+12)) scale
   in takeWhile (<= 127) everyNote
 
--- TODO: sequence :: Scale -> Octave -> Motif -> [AbsPitch]
+-- This function is for mapping scale indices to a scale
 seqToScale :: Scale -> Octave -> Sequence -> [AbsPitch]
 seqToScale scale oct = map ((+(12*oct)) . (scale !!))
 
@@ -63,8 +63,14 @@ melody rhythm seq = zipWith note (cycle rhythm) $ map pitch seq
 clip :: InstrumentName -> [Music Pitch] -> Music Pitch 
 clip inst = (instrument inst) . line
 
--- What's the absolute quickest way to try out a seqeunce?
- --cheat :: Instrument -> Scale -> [Dur] -> Octave -> Sequence -> Music a
+-- Pipeline for quickly turning a motif into a (Music a)
+-- TODO: Rename this function
 cheat :: InstrumentName -> [AbsPitch] -> [Dur] -> Octave -> Sequence -> Music Pitch 
 cheat inst scale rhythm octave =
   (clip inst) . (melody rhythm) . (seqToScale scale octave)
+
+-- This is one way to create a patterned motif that iteratively glides upward
+-- through a motif
+strum p
+  | length p < 3 = []
+  | otherwise = take 3 p ++ (strum $ tail p)
