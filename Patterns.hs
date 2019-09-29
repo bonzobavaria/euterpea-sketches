@@ -5,6 +5,7 @@ module Patterns where
 -- a scale, or meaningful in the context of the 12-tone
 -- chromatic scale.
 
+disjunction :: Int -> Int -> [Int]
 disjunction step len = take len $ iterate (+ step) 0
 
 -- These names look a little confusing, but that's just

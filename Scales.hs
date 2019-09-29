@@ -22,15 +22,3 @@ locrian =         [0,1,3,5,6,8,10]
 harmonicMinor =   [0,2,3,5,7,8,11]
 melodicMinor =    [0,2,3,5,7,9,11]
 hungarianMinor =  [0,2,3,6,7,8,10]
-
--- TODO: Pitchclasses are from Euterpea, so this shouldn't be here.
--- Ex: scale D major = map (+2) major
-scale :: PitchClass -> Scale -> Scale
-scale key sc = map (+(absPitch(key,-1))) sc
-
--- get a list of every possible AbsPitch for a scale
-mkScale :: Scale -> [AbsPitch]
-mkScale scale = 
-  let everyNote = concat $ take 11 $ iterate (map (+12)) scale
-  in takeWhile (<= 127) everyNote
-

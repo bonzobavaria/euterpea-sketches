@@ -3,6 +3,7 @@ module Scratch where
 import Scales
 import Euterpea
 import Percussion
+import qualified Utils
 
 -- Patterns are ints describing melodic movement, 
 -- but not tied to a particular scale or octave [Int]
@@ -35,7 +36,7 @@ comp =
 comp2 :: Music Pitch
 comp2 = 
   let indices = zipWith (*) [11,10..4] [5..9]
-      scale' = mkScale $ scale C aeolian
+      scale' = Utils.mkScale $ Utils.scale C aeolian
       notes = map (scale' !!) indices
   in line $ map (note en . pitch) notes
 
@@ -44,7 +45,7 @@ downBy interval times start = take times $ iterate ((-)interval) start
 
 octavesUp = upBy 12
 
-dMinor = mkScale $ scale D minor
+dMinor = Utils.mkScale $ Utils.scale D minor
 
 comp3 :: Music Pitch
 comp3 =

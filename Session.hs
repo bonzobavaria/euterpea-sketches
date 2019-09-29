@@ -10,8 +10,7 @@ import Euterpea
 notes :: [AbsPitch]
 notes = Utils.mkScale Scales.dorian 
 
--- tertian :: [Integer], but we have to have [Int] to satify [AbsPitch]
-pat = map fromIntegral $ Patterns.tertian 4
+pat = Patterns.tertian 4
 p1 = Utils.unravel $ reverse [[0,7],pat,[0..3] ++ [4,3..1],[0,4]]
 thing = Utils.seqToScale notes 5 p1 
 m1 = Utils.melody [sn] thing
@@ -38,6 +37,6 @@ arpInc x = x ++ (reverse x)
 -- Exclusive arp
 arpEx x = init x ++ (init $ reverse x)
 
---q = Utils.cheat Lead1Square notes [sn] 5
+q = Utils.cheat Lead1Square notes [sn] 5
 
---seq2 = q $ arpEx Scales.dorian
+seq2 = q $ arpEx Scales.dorian

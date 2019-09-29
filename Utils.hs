@@ -5,6 +5,7 @@ module Utils (
   melody,
   unravel,
   mkScale,
+  scale,
   seqToScale,
 ) where
 
@@ -37,6 +38,7 @@ unravel (x:xs) =
 -- and moving up a half-step each time, so the first value is the outermost
 -- shape, i.e. the one that completes only once and has the longest duration.
 
+-- TODO: This is actually a Motif
 type Sequence = [Int]
 
 -- Ex: scale D major = map (+2) major
@@ -49,8 +51,7 @@ mkScale scale =
   let everyNote = concat $ take 11 $ iterate (map (+12)) scale
   in takeWhile (<= 127) everyNote
 
--- FIXME: seq is the thing you'll know last, so it should be the final argument
--- seqToScale :: Scale Octave **match Euterpea** Sequence -> [AbsPitch]
+-- TODO: sequence :: Scale -> Octave -> Motif -> [AbsPitch]
 seqToScale :: Scale -> Octave -> Sequence -> [AbsPitch]
 seqToScale scale oct = map ((+(12*oct)) . (scale !!))
 
@@ -66,5 +67,4 @@ clip inst = (instrument inst) . line
  --cheat :: Instrument -> Scale -> [Dur] -> Octave -> Sequence -> Music a
 cheat :: InstrumentName -> [AbsPitch] -> [Dur] -> Octave -> Sequence -> Music Pitch 
 cheat inst scale rhythm octave =
-  -- FIXME: fix this so fromIntegral isn't needed
   (clip inst) . (melody rhythm) . (seqToScale scale octave)
