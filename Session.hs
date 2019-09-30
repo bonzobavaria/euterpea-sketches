@@ -14,14 +14,14 @@ notes = Utils.mkScale Scales.lydian
 
 pat = Patterns.tertian 4
 p1 = Utils.unravel $ reverse [[0,7],pat,[0..3] ++ [4,3..1],[0,4]]
-thing = Utils.seqToScale notes 5 p1 
+thing = Utils.sequence notes 5 p1 
 m1 = Utils.melody [sn] thing
 
 -- sereneKoto :: Clip
 c1 = Utils.clip Lead1Square m1
 
 p2 = [0,4,2,5]
-t2 = Utils.seqToScale notes 4 p2 
+t2 = Utils.sequence notes 4 p2 
 m2 = Utils.melody [(1/1)] t2
 
 c2 = Utils.clip Pad4Choir m2
@@ -47,5 +47,58 @@ linksAdventure = q $ concatMap (\x -> [0,0] ++ (map (+ (x + 1)) $ take 6 $ arpEx
 
 q1 = Utils.cheat SynthBass1 notes [qn] 3
 
-m401 = 
+nSet :: Utils.NoteSet  
+nSet = Utils.extend Scales.dorian
+
+motif :: Utils.Motif
+--motif = take 32 $ cycle $ arpEx (Patterns.quintal 5)
+motif = [0..7]
+
+pitches = Utils.render motif nSet (C,5) :: [Pitch]
+rhythm = cycle [en] :: [Dur]
+
+motif2 :: Utils.Motif
+motif2 = let m = take 4 $ Utils.progress [0..15] 4 in (reverse m)
+
+motif3 = [0,4,7]
+
+-- This will inject a motive into a sequence every n notes
+inject :: [Pitch] -> Utils.Motif -> Utils.NoteSet -> Int -> [Pitch]
+inject [] _ _ _ = []
+inject (x:xs) motive nSet count
+  | mod count 4 == 0 = (Utils.render motif nSet x) ++ (inject xs motive nSet (count + 1))
+  | otherwise = [x] ++ (inject xs motive nSet (count + 1))
+
+-- TODO: How about an inject function that uses a conditional instead of a
+-- counter?
+-- TODO: Would it be nicer to only inject into [Music Pitch], instead of having
+-- to build out a totally separate rhythm?
+
+pitches2 = Utils.render motif2 nSet (C,6) :: [Pitch]
+
+pitches033 = inject pitches motif3 nSet 1
+
+song = zipWith note rhythm pitches :: [Music Pitch]
+song2 = zipWith note (cycle [tn]) pitches2 :: [Music Pitch]
+
+
+song3 :: Music Pitch 
+song3 = line $ zipWith note (cycle $ concat [replicate 3 qn, replicate 3 (qn / 3)]) pitches033
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

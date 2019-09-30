@@ -35,6 +35,36 @@ mkScale scale =
   in takeWhile (<= 127) everyNote
 ```
 
+Now I'm thinking that a `NoteSet` should be totally independent of 
+transposition to a key.
+
+``` haskell
+extend :: [Int] -> NoteSet
+extend = (takeWhile (<= 127)) . concat . (iterate (map (+12)))
+```
+
+Then a melodic sequence can be **rendered** into a list of type `[Pitch]` by
+a function that is applied to the melodic sequence and a starting pitch. That
+would be after the function that zips `Motifs` into `NoteSets`. So I guess a
+`Sequence` is a `Motif` plus a `NoteSet`. I can probably define a **semigroup**
+to make that workflow easier.
+
+One **huge** problem is that this workflow doesn't seem to allow negative 
+motivic values, which it totally should, so I need to think more carefully 
+about how `Motif`s and `NoteSets` get combined.
+
+If swapping notesets is very easy, then the need for chords would be hugely 
+reduced, or chords could be seen as ordinary notesets. 
+
+So the way to combine different notesets and stuff is to get a **sequence** 
+(`[Pitch]`) out of of a single noteset, then create new **motifs**, and target 
+the desired areas of the extant sequence to **map them onto**. So a motif could 
+render a dorian sequence, then I could create another motif and choose a scale 
+for it. By mapping over the first sequence I can provide notes in that sequence 
+as render targets.
+
+So how can I insert lists into other lists?
+
 ## Consistent Octave
 
 The `Octave` type should be used consistently between my utils and Euterpea. In 
@@ -57,3 +87,9 @@ p = map (\x -> take 3 $ dropWhile (< x) l) l
 concat $ takeWhile (\x -> length x >= 3) p
 
 ```
+
+## Conflicting methods
+
+Right now I'm working on mapping motifs onto scales and chords. I need to 
+evaluate how fluidly those scales and chords can change, and if fluidity in 
+that matter is what I want. How easily could I create a passage consisting of 

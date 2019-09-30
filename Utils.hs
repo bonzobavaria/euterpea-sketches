@@ -2,15 +2,21 @@ module Utils (
   addDur,
   cheat,
   clip,
+  extend,
   melody,
-  unravel,
   mkScale,
-  scale,
-  seqToScale,
+  Motif,
+  NoteSet,
+  progress,
+  render,
+  sequence,
+  unravel,
 ) where
 
 import Euterpea
 import Scales (Scale)
+import Prelude hiding (sequence)
+import Data.List (elemIndex)
 
 addDur :: Dur -> [(Dur -> Music a)] -> Music a
 addDur d ns = line [n d | n <- ns]
@@ -38,22 +44,40 @@ unravel (x:xs) =
 -- and moving up a half-step each time, so the first value is the outermost
 -- shape, i.e. the one that completes only once and has the longest duration.
 
--- TODO: This is actually a Motif, I guess. I need to think of a word.
-type Sequence = [Int]
+-- A motif is a medolic theme that is independent of key or intervals.
+type Motif = [Int]
+type NoteSet = [Int]
+
+extend :: [Int] -> NoteSet
+extend = (takeWhile (<= 127)) . concat . (iterate (map (+12)))
+
+-- TODO: How's this going to work? We could just recurse intil we find a Pitch
+-- we want.
+render :: Motif -> NoteSet -> Pitch -> [Pitch]
+render motif nSet p =
+  case elemIndex (absPitch p) nSet of
+    Nothing ->
+      [(C,5)] 
+    Just x ->
+      map pitch $ map ((nSet !!) . (+ x)) motif
 
 -- Ex: scale D major = map (+2) major
-scale :: PitchClass -> Scale -> Scale
-scale key sc = map (+(absPitch(key,-1))) sc
+--scale :: PitchClass -> Scale -> Scale
+--scale key sc = map (+(absPitch(key,-1))) sc
 
+-- TODO: Deprecate, still in use by Scratch.hs
 -- get a list of every possible AbsPitch for a scale
 mkScale :: Scale -> [AbsPitch]
 mkScale scale = 
   let everyNote = concat $ take 11 $ iterate (map (+12)) scale
   in takeWhile (<= 127) everyNote
 
+-- TODO: Deprecate. use render to get a [Pitch]
 -- This function is for mapping scale indices to a scale
-seqToScale :: Scale -> Octave -> Sequence -> [AbsPitch]
-seqToScale scale oct = map ((+(12*oct)) . (scale !!))
+-- TODO: Euterpea can make this easier, and it may not be meaningful once scale
+-- and chords are all note sets across the entire midi range.
+sequence :: Scale -> Octave -> Motif -> [AbsPitch]
+sequence scale oct = map ((+(12*oct)) . (scale !!))
 
 melody :: [Dur] -> [AbsPitch] -> [Music Pitch]
 melody rhythm seq = zipWith note (cycle rhythm) $ map pitch seq
@@ -65,12 +89,14 @@ clip inst = (instrument inst) . line
 
 -- Pipeline for quickly turning a motif into a (Music a)
 -- TODO: Rename this function
-cheat :: InstrumentName -> [AbsPitch] -> [Dur] -> Octave -> Sequence -> Music Pitch 
+cheat :: InstrumentName -> [AbsPitch] -> [Dur] -> Octave -> Motif -> Music Pitch 
 cheat inst scale rhythm octave =
-  (clip inst) . (melody rhythm) . (seqToScale scale octave)
+  (clip inst) . (melody rhythm) . (sequence scale octave)
 
 -- This is one way to create a patterned motif that iteratively glides upward
--- through a motif
-strum p
-  | length p < 3 = []
-  | otherwise = take 3 p ++ (strum $ tail p)
+-- through a motif. This function doesn't care it it's working on [AbsPitch] or
+-- a motif
+progress :: Motif -> Int -> Motif
+progress p len
+  | length p < len = []
+  | otherwise = take len p ++ (progress (tail p) len)
