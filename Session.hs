@@ -62,6 +62,9 @@ motif2 = let m = take 4 $ Utils.progress [0..15] 4 in (reverse m)
 
 motif3 = [0,4,7]
 
+-- Well anyway injecting probably isn't the nicest way to write a composition.
+-- You'll probably be much happier with unravel, and rendering with a matching
+-- rhythm
 -- This will inject a motive into a sequence every n notes
 inject :: [Pitch] -> Utils.Motif -> Utils.NoteSet -> Int -> [Pitch]
 inject [] _ _ _ = []
@@ -69,6 +72,10 @@ inject (x:xs) motive nSet count
   | mod count 4 == 0 = (Utils.render motif nSet x) ++ (inject xs motive nSet (count + 1))
   | otherwise = [x] ++ (inject xs motive nSet (count + 1))
 
+inject' [] _ _ = []
+inject' (x:xs) motive count
+  | mod count 4 == 0 = (map (\y -> trans y x) motive) ++ (inject' xs motive (count + 1))
+  | otherwise = [x] ++ (inject' xs motive (count + 1))
 -- TODO: How about an inject function that uses a conditional instead of a
 -- counter?
 -- TODO: Would it be nicer to only inject into [Music Pitch], instead of having
@@ -84,6 +91,18 @@ song2 = zipWith note (cycle [tn]) pitches2 :: [Music Pitch]
 
 song3 :: Music Pitch 
 song3 = line $ zipWith note (cycle $ concat [replicate 3 qn, replicate 3 (qn / 3)]) pitches033
+
+-- TODO rename unravel as zoomIn?
+key044 = Utils.extend Scales.dorian :: Utils.NoteSet
+seq044 :: Utils.Motif
+seq044 = concat $ map (\x -> [0,0,x,0]) $ Patterns.quintal 3
+rhythm044 :: [Dur]
+rhythm044 = concat [replicate 2 en,replicate 3 (en / 3),[en]]
+
+ps044 = Utils.render seq044 key044 (C,4)
+
+song044 :: Music Pitch
+song044 = line $ zipWith note (cycle rhythm044) ps044
 
 
 
