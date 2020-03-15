@@ -45,7 +45,7 @@ flutePart =
             :+: note wn  (G, 5) 
     in instrument inst notes
 
--- 10 Bars
+-- 10 Bars / 4 repetions
 waves =
     let
         inst = Viola
@@ -56,12 +56,23 @@ waves =
         mel = Utils.melody rhythm renderedMotif
     in Utils.clip inst mel
 
-
+currents =
+    let
+        inst = OrchestralHarp
+        notes = Utils.mkScale' C Scales.major
+        -- 32 notes, 40 qn duration = 10 bars
+        motif = Utils.unravel [[0, 2, 3, -1], [0, 3, 2, -1], [4, 0]]
+        rhythm = cycle [qn, qn, qn, hn]
+        renderedMotif = Utils.render motif notes (B, 4) :: [AbsPitch]
+        mel = Utils.melody rhythm renderedMotif :: [Music Pitch]
+    in  instrument inst $ line mel
 
 main = do 
-    play $ 
-            (offset 10 $ times 8 waves) 
-        :=: (times 3 strings)
-        :=: (offset 15 $ times 2 tinks)
-        :=: (offset 18 $ times 3 bassDrum)
-        :=: (offset 17 flutePart)
+    -- TODO: Create a bpm function to use with tempo
+    play $ tempo (4 / 5) $
+            (times 4 strings)
+        :=: (offset 10 $ times 12 waves) 
+        :=: (offset 18 $ times 3 currents)
+        :=: (offset 18 $ times 4 tinks)
+        :=: (offset 23 $ times 5 bassDrum)
+        :=: (offset 27 $ times 2 flutePart)
