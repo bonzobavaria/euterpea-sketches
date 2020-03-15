@@ -1,13 +1,6 @@
-module Scales where
-
--- TODO: this module shouldn't need to import Euterpea, since this concept
--- could be meaningful in any project. Utilities that make scales are probably
--- part of Utils.hs
-import Euterpea
+module Utils.Scales where
 
 type Scale = [Int]
-
--- FIXME: Scales they don't have a type annotation don't match the type `Scale`. Is there a better way to use types to define scales?
 
 minor = aeolian                    :: Scale
 major = ionian                     :: Scale

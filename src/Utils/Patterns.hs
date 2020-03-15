@@ -1,4 +1,4 @@
-module Patterns where
+module Utils.Patterns where
 
 -- These patterns express disjunct melodies across an
 -- established scale, unlike scales, which are independent of

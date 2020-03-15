@@ -1,9 +1,9 @@
-module Scratch where
+module Composition.Scratch where
 
-import Scales
 import Euterpea
-import Percussion
-import qualified Utils
+
+import qualified Utils.Scales as Scales
+import qualified Utils.Utils as Utils
 
 -- Patterns are ints describing melodic movement, 
 -- but not tied to a particular scale or octave [Int]
@@ -30,13 +30,13 @@ type Scale = [Int]
 comp :: Music Pitch
 comp = 
   let getNote scaleDeg n = note (toDur n) (pitch (scaleDeg * n + 40))
-      getNotes n = forever $ line $ map (\x -> getNote x n) aeolian
+      getNotes n = forever $ line $ map (\x -> getNote x n) Scales.aeolian
   in chord $ map getNotes [0..5]
 
 comp2 :: Music Pitch
 comp2 = 
   let indices = zipWith (*) [11,10..4] [5..9]
-      scale' = Utils.mkScale $ Utils.scale C aeolian
+      scale' = Utils.mkScale $ Utils.scale C Scales.aeolian
       notes = map (scale' !!) indices
   in line $ map (note en . pitch) notes
 
@@ -45,7 +45,7 @@ downBy interval times start = take times $ iterate ((-)interval) start
 
 octavesUp = upBy 12
 
-dMinor = Utils.mkScale $ Utils.scale D minor
+dMinor = Utils.mkScale $ Utils.scale D Scales.minor
 
 comp3 :: Music Pitch
 comp3 =

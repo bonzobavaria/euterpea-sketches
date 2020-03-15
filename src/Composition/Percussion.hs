@@ -1,4 +1,4 @@
-module Percussion (
+module Composition.Percussion (
   beat,
   groove
 ) where

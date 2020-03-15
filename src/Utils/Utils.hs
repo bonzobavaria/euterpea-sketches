@@ -1,37 +1,36 @@
-module Utils (
+module Utils.Utils (
   addDur,
   cheat,
   clip,
   extend,
+  inject,
   melody,
+  mkMelody,
   mkScale,
+  mkScale',
   Motif,
   NoteSet,
   progress,
   render,
+  renderMotif,
+  scale,
   sequence,
   unravel,
 ) where
 
 import Euterpea
-import Scales (Scale)
+import Utils.Scales (Scale)
 import Prelude hiding (sequence)
 import Data.List (elemIndex)
 
 addDur :: Dur -> [(Dur -> Music a)] -> Music a
 addDur d ns = line [n d | n <- ns]
 
--- TODO: I don't think unravel is working at the level
--- of absPitch yet. It needs to be a part of a scale first.
--- type Pattern = [Int]
--- unravel :: [[Int]] -> Pattern
--- TODO: Figure out which fold you should use, foldr, foldl, or foldl'.
 unravel :: [[AbsPitch]] -> [AbsPitch]
 unravel [] = []
-unravel (x:xs) =
+unravel xs =
   let func = ((<*>) . ((<$>) (+)))
-  in foldl func x xs
---unravel = foldl ((<*>) . ((<$>) (+)))
+  in foldl1 func xs
 
 -- Examples:
 --   unravel [[0,3,7,12],[0..3],[0,12]]
@@ -47,41 +46,51 @@ unravel (x:xs) =
 -- A motif is a medolic theme that is independent of key or intervals.
 type Motif = [Int]
 type NoteSet = [Int]
+type Rhythm = [Dur]
 
 extend :: [Int] -> NoteSet
 extend = (takeWhile (<= 127)) . concat . (iterate (map (+12)))
 
--- TODO: How's this going to work? We could just recurse intil we find a Pitch
--- we want.
-render :: Motif -> NoteSet -> Pitch -> [Pitch]
-render motif nSet p =
+-- Render Motif into NoteSet, starting at nearest Pitch that is a member of the
+-- NoteSet
+renderMotif :: Motif -> NoteSet -> Pitch -> [AbsPitch]
+renderMotif motif nSet p =
   case elemIndex (absPitch p) nSet of
     Nothing ->
-      [(C,5)] 
-    Just x ->
-      map pitch $ map ((nSet !!) . (+ x)) motif
+        render motif nSet (trans 1 p)
+    -- FIXME: This is a partial function. Use a safe index function instead.
+    Just x -> map ((nSet !!) . (+ x)) motif
+
+-- Deprecated name for this function, still in use
+render = renderMotif
 
 -- Ex: scale D major = map (+2) major
---scale :: PitchClass -> Scale -> Scale
---scale key sc = map (+(absPitch(key,-1))) sc
+scale :: PitchClass -> Scale -> Scale
+scale key sc = map (+(absPitch(key,-1))) sc
 
--- TODO: Deprecate, still in use by Scratch.hs
--- get a list of every possible AbsPitch for a scale
-mkScale :: Scale -> [AbsPitch]
+-- Get a list of every possible AbsPitch for a scale
 mkScale scale = 
   let everyNote = concat $ take 11 $ iterate (map (+12)) scale
   in takeWhile (<= 127) everyNote
+
+mkScale' :: PitchClass -> Scale -> NoteSet
+mkScale' key scale = 
+  let everyNote = concat $ take 11 $ iterate (map (+12)) scale
+      adjustedScale = map (+ (absPitch (key, -1))) everyNote
+  in takeWhile (<= 127) adjustedScale
 
 -- TODO: Deprecate. use render to get a [Pitch]
 -- This function is for mapping scale indices to a scale
 -- TODO: Euterpea can make this easier, and it may not be meaningful once scale
 -- and chords are all note sets across the entire midi range.
+-- FIXME: This is a partial function
 sequence :: Scale -> Octave -> Motif -> [AbsPitch]
 sequence scale oct = map ((+(12*oct)) . (scale !!))
 
 melody :: [Dur] -> [AbsPitch] -> [Music Pitch]
 melody rhythm seq = zipWith note (cycle rhythm) $ map pitch seq
 
+mkMelody = melody
 
 -- Should clip be responsible for using `line` to convert [[Music a] to Music a?
 clip :: InstrumentName -> [Music Pitch] -> Music Pitch 
@@ -100,3 +109,23 @@ progress :: Motif -> Int -> Motif
 progress p len
   | length p < len = []
   | otherwise = take len p ++ (progress (tail p) len)
+
+-- Well anyway injecting probably isn't the nicest way to write a composition.
+-- You'll probably be much happier with unravel, and rendering with a matching
+-- rhythm
+-- This will inject a motive into a sequence every n notes
+inject :: [Pitch] -> Motif -> NoteSet -> Int -> [Pitch]
+inject [] _ _ _ = []
+inject (x:xs) motive nSet count
+  | mod count 4 == 0 = (map pitch (render motive nSet x)) ++ (inject xs motive nSet (count + 1))
+  | otherwise = [x] ++ (inject xs motive nSet (count + 1))
+
+inject' [] _ _ = []
+inject' (x:xs) motive count
+  | mod count 4 == 0 = (map (\y -> trans y x) motive) ++ (inject' xs motive (count + 1))
+  | otherwise = [x] ++ (inject' xs motive (count + 1))
+-- TODO: How about an inject function that uses a conditional instead of a
+-- counter?
+-- TODO: Would it be nicer to only inject into [Music Pitch], instead of having
+-- to build out a totally separate rhythm?
+

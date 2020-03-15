@@ -8,6 +8,16 @@ Test fluidsynth with `noteon 1 60 120`.
 Now open `ghci` and `import Euterpea`.
 Try `play $ note qn (pitch 64)`.
 
+## Using GHCI
+
+Start `ghci` from the root directory with `ghci -isrc` to give `ghci` access to
+all modules in the `src` directory.
+
+## Useful Euterpea Functions
+
+`:info InstrumentName`  - List available MIDI instruments
+`:info PercussionSound` - List available percusssion sounds
+
 ## File Heirarchy
 
 **Chords** and **scales** are just descriptions of numerical patterns and

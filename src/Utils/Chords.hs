@@ -1,4 +1,4 @@
-module Chords where
+module Utils.Chords where
 
 -- These chords are meaningful in the context of a 12-tone scale, while patterns like tertiary, quintal, and quartal are adaptive to the scale they're applied to.
 -- Triads
